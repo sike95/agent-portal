@@ -44,6 +44,14 @@ export class MessengerService {
     );
   }
 
+  recieve(){
+    return new Observable((subscriber) => {
+      this.socket.on('message', (data) => {
+        subscriber.next(data);
+      });
+    });
+  }
+
   listen(event: string) {
     return new Observable((subscriber) => {
       this.socket.on(event, (data) => {
@@ -53,7 +61,7 @@ export class MessengerService {
   }
 
   emit(event: string, data: any) {
-    this.socket.emit(event, data)
+    this.socket.emit(event, data);
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -1,1 +1,2 @@
-<app-agent-screen></app-agent-screen>
+<app-agent-screen *ngIf='!landing'></app-agent-screen>
+<app-landing-screen (clickEvent)="clickEvent($event)"  *ngIf='landing'></app-landing-screen>

@@ -1,4 +1,6 @@
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { MessengerService } from './services/messenger.service';
 
 @Component({
@@ -14,6 +16,7 @@ export class AgentScreenComponent implements OnInit {
   currentCustomer: any;
   conversations: any;
   newMessege: string;
+  incomingCustomerMessage: Observable<any>;
 
   ngOnInit() {
     this.mesangerService.getAllCustomers()
@@ -22,10 +25,29 @@ export class AgentScreenComponent implements OnInit {
       this.customers = data;
     });
 
-    this.mesangerService.listen('test')
+    this.mesangerService.listen('test event')
     .subscribe((data) => {
       console.log(data);
     });
+
+    this.mesangerService.recieve()
+    .subscribe((data: any) => {
+      if (data && data.userId){
+        this.updateChat(data);
+      }
+    });
+
+  }
+
+  updateChat(messageDate) {
+    if (this.currentCustomer._id === messageDate.userId) {
+      const messageObject = {
+        message: messageDate.message.text,
+        agent: false,
+        customer: messageDate.userId
+      }
+      this.conversations.push(messageObject);
+    }
   }
 
   fetchCustomerConversation(customer) {
@@ -39,7 +61,16 @@ export class AgentScreenComponent implements OnInit {
     });
   }
 
-  sendMessage() {
 
+  sendMessage() {
+    console.log(this.newMessege);
+    const messageObject = {
+      message: this.newMessege,
+      agent: true,
+      customer: this.currentCustomer
+    }
+    this.conversations.push(messageObject);
+    this.mesangerService.emit('message', messageObject);
+    this.newMessege = '';
   }
 }
